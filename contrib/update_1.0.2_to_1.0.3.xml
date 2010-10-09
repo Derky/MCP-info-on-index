@@ -6,11 +6,11 @@
 	<header>
 		<license>http://opensource.org/licenses/gpl-license.php GNU General Public License v2</license>
 		
-		<title lang="en">MCP info on index</title>
+		<title lang="en">MCP info on index, update from 1.0.2 to 1.0.3 </title>
 		
-		<description lang="en">Adds a red box to the index when there are reported or unapproved posts (and how many). So you don't have to check the MCP everytime and you will see reports and unapproved posts faster. This is only visible for moderators or admins with moderator permissions.</description>
+		<description lang="en">This is the update file for version 1.0.2 to 1.0.3.</description>
 		
-		<author-notes lang="en">To install this MOD on a subsilver2 based style. Only apply changes to index.php and language/en/mcp.php and then go to the subsilver2 file which is displayed below at Additional MODX Files</author-notes>
+		<author-notes lang="en">If you want to update this MOD on a subsilver2 based style. Only apply changes to index.php and language/en/mcp.php and then go to the subsilver2 update file which is displayed below at Additional MODX Files</author-notes>
 		
 		<author-group>
 			<author>
@@ -62,27 +62,72 @@
 		</history>
 		
 		<link-group>
-			<link type="template" href="contrib/subsilver2.xml" lang="en">subsilver2</link>
-			<link type="contrib" href="contrib/update_1.0.2_to_1.0.3.xml" lang="en">update from 1.0.2 to 1.0.3</link>
-			<link type="contrib" href="contrib/subsilver2_update_1.0.2_to_1.0.3.xml" lang="en">subsilver2 update from 1.0.2 to 1.0.3</link>
+			<link type="parent" href="../install_mcp_info_on_index.xml" lang="en">Main install file</link>
+			<link type="contrib" href="subsilver2_update_1.0.2_to_1.0.3.xml" lang="en">subsilver2 update from 1.0.2 to 1.0.3</link>
 		</link-group>
-		
+
 	</header>
 	
 	<action-group>
 		
 		<open src="index.php">
 			<edit>
-				<find><![CDATA[		$birthday_list .= (($birthday_list != '') ? ', ' : '') . get_username_string('full', $row['user_id'], $row['username'], $row['user_colour']);
+				<find><![CDATA[// Show amount of reported and queue posts for authenticated users
+if ($auth->acl_getf_global('m_report') || $auth->acl_getf_global('m_approve'))
+{
+	if (!function_exists('get_forum_list'))
+	{
+		include($phpbb_root_path . 'includes/functions_admin.' . $phpEx);
+	}
+	$user->add_lang('mcp');
+	
+	// Reported posts
+	$forum_list = get_forum_list('m_report');
+	if (!empty($forum_list))
+	{
+		$sql = 'SELECT COUNT(r.report_id) AS total
+			FROM ' . REPORTS_TABLE . ' r, ' . POSTS_TABLE . ' p
+			WHERE r.post_id = p.post_id
+				AND r.report_closed = 0
+				AND ' . $db->sql_in_set('forum_id', $forum_list);
+		$result = $db->sql_query($sql);
+		$total = (int) $db->sql_fetchfield('total');
+		$db->sql_freeresult($result);
 
-		if ($age = (int) substr($row['user_birthday'], -4))
-		{
-			$birthday_list .= ' (' . ($now['year'] - $age) . ')';
+		if ($total)
+		{			
+			$template->assign_vars(array(
+				'L_REPORTS_TOTAL'	=> ($total == 1) ? $user->lang['REPORT_TOTAL'] : sprintf($user->lang['REPORTS_TOTAL'], $total),
+				'U_MCP_REPORTS'		=> append_sid("{$phpbb_root_path}mcp.$phpEx", 'i=reports'),
+				'S_HAS_REPORTS'		=> true)
+			);
 		}
 	}
-	$db->sql_freeresult($result);
-}]]></find>
-				<action type="after-add"><![CDATA[// Show amount of reported and queue posts for authenticated users
+	
+	// Posts in queue
+	$forum_list = get_forum_list('m_approve');
+	if (!empty($forum_list))
+	{
+		$sql = 'SELECT COUNT(post_id) AS total
+			FROM ' . POSTS_TABLE . '
+			WHERE ' . $db->sql_in_set('forum_id', $forum_list) . '
+				AND post_approved = 0';
+		$result = $db->sql_query($sql);
+		$total = (int) $db->sql_fetchfield('total');
+		$db->sql_freeresult($result);
+
+		if ($total)
+		{
+			$template->assign_vars(array(
+				'L_UNAPPROVED_TOTAL'		=> ($total == 1) ? $user->lang['UNAPPROVED_POST_TOTAL'] : sprintf($user->lang['UNAPPROVED_POSTS_TOTAL'], $total),
+				'U_MCP_QUEUE'			=> append_sid("{$phpbb_root_path}mcp.$phpEx", 'i=queue'),
+				'S_HAS_UNAPPROVED_POSTS'	=> true)
+			);
+		}
+	}	
+}
+]]></find>
+				<action type="replace-with"><![CDATA[// Show amount of reported and queue posts for authenticated users
 if ($auth->acl_getf_global('m_report') || $auth->acl_getf_global('m_approve'))
 {
 	if (!function_exists('get_forum_list'))
@@ -169,7 +214,7 @@ if ($auth->acl_getf_global('m_report') || $auth->acl_getf_global('m_approve'))
 		
 	}	
 }]]></action>
-			</edit>
+			</edit>			
 		</open>
 		
 		<open src="language/en/mcp.php">
@@ -186,9 +231,18 @@ if ($auth->acl_getf_global('m_report') || $auth->acl_getf_global('m_approve'))
 		
 		<open src="styles/prosilver/template/index_body.html">
 			<edit>
-				<comment lang="en">If you use a subsilver2 (based) style, stop here and go to /contrib/subsilver2.xml</comment>
-				<find><![CDATA[<!-- INCLUDE overall_header.html -->]]></find>
-				<action type="after-add"><![CDATA[<!-- IF U_MCP_REPORTS or U_MCP_PM_REPORTS or U_MCP_POSTS_QUEUE or U_MCP_TOPICS_QUEUE -->
+				<comment lang="en">If you use a subsilver2 (based) style, stop here and go to /contrib/subsilver2_update_1.0.2_to_1.0.3.xml</comment>
+				<find><![CDATA[<!-- IF S_HAS_REPORTS or S_HAS_UNAPPROVED_POSTS -->
+<div id="message" class="rules">
+    <div class="inner"><span class="corners-top"><span></span></span>
+        <strong>{L_INFORMATION}:</strong> 
+        <!-- IF S_HAS_REPORTS --><a href="{U_MCP_REPORTS}">{L_REPORTS_TOTAL}</a><!-- ENDIF -->
+        <!-- IF S_HAS_REPORTS and S_HAS_UNAPPROVED_POSTS --> &bull; <!-- ENDIF -->
+        <!-- IF S_HAS_UNAPPROVED_POSTS --><a href="{U_MCP_QUEUE}">{L_UNAPPROVED_TOTAL}</a><!-- ENDIF -->
+    <span class="corners-bottom"><span></span></span></div>
+</div>
+<!-- ENDIF -->]]></find>
+				<action type="replace-with"><![CDATA[<!-- IF U_MCP_REPORTS or U_MCP_PM_REPORTS or U_MCP_POSTS_QUEUE or U_MCP_TOPICS_QUEUE -->
 <div id="message" class="rules">
     <div class="inner"><span class="corners-top"><span></span></span>
         <strong>{L_INFORMATION}:</strong>

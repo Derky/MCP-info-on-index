@@ -6,11 +6,11 @@
 	<header>
 		<license>http://opensource.org/licenses/gpl-license.php GNU General Public License v2</license>
 		
-		<title lang="en">MCP info on index for subsilver2</title>
+		<title lang="en">MCP info on index, update from 1.0.2 to 1.0.3</title>
 		
-		<description lang="en">Adds a red box to the index when there are reported or unapproved posts (and how many). So you don't have to check the MCP everytime and you will see reports and unapproved posts faster. This is only visible for moderators or admins with moderator permissions.</description>
+		<description lang="en">This is the subsilver2 update file for version 1.0.2 to 1.0.3.</description>
 		
-		<author-notes lang="en">This is the install file for subsilver2 (based) styles.</author-notes>
+		<author-notes lang="en">Only for updating this MOD from version 1.0.2 to 1.0.3 for subsilver2 (based) styles.</author-notes>
 		
 		<author-group>
 			<author>
@@ -62,7 +62,7 @@
 		</history>
 		
 		<link-group>
-			<link type="parent" href="../install_mcp_info_on_index.xml" lang="en">Main install file</link>
+			<link type="parent" href="update_1.0.2_to_1.0.3.xml" lang="en">update from 1.0.2 to 1.0.3</link>
 		</link-group>
 
 	</header>
@@ -71,10 +71,17 @@
 		
 		<open src="styles/subsilver2/template/index_body.html">
 			<edit>
-				<comment lang="en">For prosilver (based) styles see the main install file</comment>
-				<find><![CDATA[<!-- INCLUDE overall_header.html -->]]></find>
-				<action type="after-add"><![CDATA[
-<!-- IF U_MCP_REPORTS or U_MCP_PM_REPORTS or U_MCP_POSTS_QUEUE or U_MCP_TOPICS_QUEUE -->
+				<find><![CDATA[<!-- IF S_HAS_REPORTS or S_HAS_UNAPPROVED_POSTS -->
+<div class="forumrules">
+    <h3>{L_INFORMATION}</h3><br />
+    <!-- IF S_HAS_REPORTS --><a href="{U_MCP_REPORTS}">{L_REPORTS_TOTAL}</a><!-- ENDIF -->
+    <!-- IF S_HAS_REPORTS and S_HAS_UNAPPROVED_POSTS --> &bull; <!-- ENDIF -->
+    <!-- IF S_HAS_UNAPPROVED_POSTS --><a href="{U_MCP_QUEUE}">{L_UNAPPROVED_TOTAL}</a><!-- ENDIF -->
+</div>
+
+<br clear="all" />
+<!-- ENDIF -->]]></find>
+				<action type="replace-with"><![CDATA[<!-- IF U_MCP_REPORTS or U_MCP_PM_REPORTS or U_MCP_POSTS_QUEUE or U_MCP_TOPICS_QUEUE -->
 <div class="forumrules">
     <h3>{L_INFORMATION}</h3><br />
     <ul>
