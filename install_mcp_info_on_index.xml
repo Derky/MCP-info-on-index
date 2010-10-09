@@ -19,7 +19,7 @@
 			</author>
 		</author-group>
 		
-		<mod-version>1.0.0</mod-version>
+		<mod-version>1.0.1</mod-version>
 		
 		<installation>
 			<level>easy</level>
@@ -33,6 +33,15 @@
 				<rev-version>1.0.0</rev-version>
 				<changelog lang="en">
 					<change>First release</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2008-09-20</date>
+				<rev-version>1.0.1</rev-version>
+				<changelog lang="en">
+					<change>Use of $db->sql_in_set</change>
+					<change>Optimized switches and URLs</change>
+					<change>Added if (!function_exists('get_forum_list')) to avoid problems with other MODs</change>
 				</changelog>
 			</entry>
 		</history>
@@ -58,40 +67,36 @@
 	}
 	$db->sql_freeresult($result);
 }]]></find>
-				<action type="after-add"><![CDATA[
-// Show amount of reported and qeue posts for m_ auth users
+				<action type="after-add"><![CDATA[// Show amount of reported and qeue posts for m_ auth users
 if ($auth->acl_get('m_') || $auth->acl_getf_global('m_'))
 {
-	include($phpbb_root_path . 'includes/functions_admin.' . $phpEx);
+	if (!function_exists('get_forum_list'))
+	{
+		include($phpbb_root_path . 'includes/functions_admin.' . $phpEx);
+	}
 	$user->add_lang('mcp');
 	
 	// Reported posts
 	$forum_list = get_forum_list('m_report');
-	$template->assign_var('S_SHOW_REPORTS', (!empty($forum_list)) ? true : false);
-
 	if (!empty($forum_list))
 	{
 		$sql = 'SELECT COUNT(r.report_id) AS total
 			FROM ' . REPORTS_TABLE . ' r, ' . POSTS_TABLE . ' p
 			WHERE r.post_id = p.post_id
 				AND r.report_closed = 0
-				AND p.forum_id IN (0, ' . implode(', ', $forum_list) . ')';
+				AND ' . $db->sql_in_set('forum_id', $forum_list);
 		$result = $db->sql_query($sql);
 		$total = (int) $db->sql_fetchfield('total');
 		$db->sql_freeresult($result);
 
-		if ($total > 0)
+		if ($total)
 		{			
 			$template->assign_vars(array(
 				'L_REPORTS_TOTAL'	=> ($total == 1) ? $user->lang['REPORT_TOTAL'] : sprintf($user->lang['REPORTS_TOTAL'], $total),
-				'U_REPORTS'			=> append_sid("{$phpbb_root_path}mcp.$phpEx", 'i=reports'),
+				'U_MCP_REPORTS'		=> append_sid("{$phpbb_root_path}mcp.$phpEx", 'i=reports'),
 				'S_HAS_REPORTS'		=> true)
 			);
 		}
-	}
-	else
-	{
-		$template->assign_var('S_SHOW_REPORTS', false);
 	}
 	
 	// Posts in queue
@@ -100,40 +105,36 @@ if ($auth->acl_get('m_') || $auth->acl_getf_global('m_'))
 	{
 		$sql = 'SELECT COUNT(post_id) AS total
 			FROM ' . POSTS_TABLE . '
-			WHERE forum_id IN (0, ' . implode(', ', $forum_list) . ')
+			WHERE ' . $db->sql_in_set('forum_id', $forum_list) . '
 				AND post_approved = 0';
 		$result = $db->sql_query($sql);
 		$total = (int) $db->sql_fetchfield('total');
 		$db->sql_freeresult($result);
-		
-		if ($total > 0)
+
+		if ($total)
 		{
 			$template->assign_vars(array(
 				'L_UNAPPROVED_TOTAL'		=> ($total == 1) ? $user->lang['UNAPPROVED_POST_TOTAL'] : sprintf($user->lang['UNAPPROVED_POSTS_TOTAL'], $total),
-				'U_QUEUE'					=> append_sid("{$phpbb_root_path}mcp.$phpEx", 'i=queue'),
+				'U_MCP_QUEUE'			=> append_sid("{$phpbb_root_path}mcp.$phpEx", 'i=queue'),
 				'S_HAS_UNAPPROVED_POSTS'	=> true)
 			);
 		}
-	}
-	else
-	{
-		$template->assign_var('S_HAS_UNAPPROVED_POSTS', false);
 	}	
-}]]></action>
+}
+]]></action>
 			</edit>
 		</open>
 		<open src="styles/prosilver/template/index_body.html">
 			<edit>
 				<comment lang="en">If you use a subsilver2 (based) style, stop here and go to /contrib/subsilver2.xml</comment>
 				<find><![CDATA[<!-- INCLUDE overall_header.html -->]]></find>
-				<action type="after-add"><![CDATA[
-<!-- IF S_HAS_REPORTS or S_HAS_UNAPPROVED_POSTS -->
+				<action type="after-add"><![CDATA[<!-- IF S_HAS_REPORTS or S_HAS_UNAPPROVED_POSTS -->
 <div id="message" class="rules">
     <div class="inner"><span class="corners-top"><span></span></span>
         <strong>{L_INFORMATION}:</strong> 
-        <!-- IF S_HAS_REPORTS --><a href="{U_REPORTS}">{L_REPORTS_TOTAL}</a><!-- ENDIF -->
+        <!-- IF S_HAS_REPORTS --><a href="{U_MCP_REPORTS}">{L_REPORTS_TOTAL}</a><!-- ENDIF -->
         <!-- IF S_HAS_REPORTS and S_HAS_UNAPPROVED_POSTS --> &bull; <!-- ENDIF -->
-        <!-- IF S_HAS_UNAPPROVED_POSTS --><a href="{U_QUEUE}">{L_UNAPPROVED_TOTAL}</a><!-- ENDIF -->
+        <!-- IF S_HAS_UNAPPROVED_POSTS --><a href="{U_MCP_QUEUE}">{L_UNAPPROVED_TOTAL}</a><!-- ENDIF -->
     <span class="corners-bottom"><span></span></span></div>
 </div>
 <!-- ENDIF -->]]></action>

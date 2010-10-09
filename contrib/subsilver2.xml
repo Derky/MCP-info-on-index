@@ -19,7 +19,7 @@
 			</author>
 		</author-group>
 		
-		<mod-version>1.0.0</mod-version>
+		<mod-version>1.0.1</mod-version>
 		
 		<installation>
 			<level>easy</level>
@@ -33,6 +33,15 @@
 				<rev-version>1.0.0</rev-version>
 				<changelog lang="en">
 					<change>First release</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2008-09-20</date>
+				<rev-version>1.0.1</rev-version>
+				<changelog lang="en">
+					<change>Use of $db->sql_in_set</change>
+					<change>Optimized switches and URLs</change>
+					<change>Added if (!function_exists('get_forum_list')) to avoid problems with other MODs</change>
 				</changelog>
 			</entry>
 		</history>
@@ -53,9 +62,9 @@
 <!-- IF S_HAS_REPORTS or S_HAS_UNAPPROVED_POSTS -->
 <div class="forumrules">
     <h3>{L_INFORMATION}</h3><br />
-    <!-- IF S_HAS_REPORTS --><a href="{U_REPORTS}">{L_REPORTS_TOTAL}</a><!-- ENDIF -->
+    <!-- IF S_HAS_REPORTS --><a href="{U_MCP_REPORTS}">{L_REPORTS_TOTAL}</a><!-- ENDIF -->
     <!-- IF S_HAS_REPORTS and S_HAS_UNAPPROVED_POSTS --> &bull; <!-- ENDIF -->
-    <!-- IF S_HAS_UNAPPROVED_POSTS --><a href="{U_QUEUE}">{L_UNAPPROVED_TOTAL}</a><!-- ENDIF -->
+    <!-- IF S_HAS_UNAPPROVED_POSTS --><a href="{U_MCP_QUEUE}">{L_UNAPPROVED_TOTAL}</a><!-- ENDIF -->
 </div>
 
 <br clear="all" />
