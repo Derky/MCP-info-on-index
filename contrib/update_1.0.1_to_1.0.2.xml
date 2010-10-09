@@ -6,11 +6,11 @@
 	<header>
 		<license>http://opensource.org/licenses/gpl-license.php GNU General Public License v2</license>
 		
-		<title lang="en">MCP info on index for subsilver2</title>
+		<title lang="en">MCP info on index, update from 1.0.1 to 1.0.2 </title>
 		
 		<description lang="en">Adds a red box to the index when there are reported or unapproved posts (and how many). So you don't have to check the MCP everytime and you will see reports and unapproved posts faster. This is only visible for moderators or admins with moderator permissions.</description>
 		
-		<author-notes lang="en">This is the install file for subsilver2 (based) styles.</author-notes>
+		<author-notes lang="en">This is the update file for version 1.0.1 to 1.0.2.</author-notes>
 		
 		<author-group>
 			<author>
@@ -61,21 +61,12 @@
 	
 	<action-group>
 		
-		<open src="styles/subsilver2/template/index_body.html">
+		<open src="index.php">
 			<edit>
-				<comment lang="en">For prosilver (based) styles see the main install file</comment>
-				<find><![CDATA[<!-- INCLUDE overall_header.html -->]]></find>
-				<action type="after-add"><![CDATA[
-<!-- IF S_HAS_REPORTS or S_HAS_UNAPPROVED_POSTS -->
-<div class="forumrules">
-    <h3>{L_INFORMATION}</h3><br />
-    <!-- IF S_HAS_REPORTS --><a href="{U_MCP_REPORTS}">{L_REPORTS_TOTAL}</a><!-- ENDIF -->
-    <!-- IF S_HAS_REPORTS and S_HAS_UNAPPROVED_POSTS --> &bull; <!-- ENDIF -->
-    <!-- IF S_HAS_UNAPPROVED_POSTS --><a href="{U_MCP_QUEUE}">{L_UNAPPROVED_TOTAL}</a><!-- ENDIF -->
-</div>
-
-<br clear="all" />
-<!-- ENDIF -->]]></action>
+				<find><![CDATA[// Show amount of reported and qeue posts for m_ auth users
+if ($auth->acl_get('m_') || $auth->acl_getf_global('m_'))]]></find>
+				<action type="replace-with"><![CDATA[// Show amount of reported and queue posts for authenticated users
+if ($auth->acl_getf_global('m_report') || $auth->acl_getf_global('m_approve'))]]></action>
 			</edit>			
 		</open>
 	</action-group>

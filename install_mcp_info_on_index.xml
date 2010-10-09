@@ -19,7 +19,7 @@
 			</author>
 		</author-group>
 		
-		<mod-version>1.0.1</mod-version>
+		<mod-version>1.0.2</mod-version>
 		
 		<installation>
 			<level>easy</level>
@@ -44,10 +44,18 @@
 					<change>Added if (!function_exists('get_forum_list')) to avoid problems with other MODs</change>
 				</changelog>
 			</entry>
+			<entry>
+				<date>2008-10-05</date>
+				<rev-version>1.0.2</rev-version>
+				<changelog lang="en">
+					<change>Better use of $auth->acl_getf_global (optimised)</change>
+				</changelog>
+			</entry>
 		</history>
 		
 		<link-group>
 			<link type="template" href="contrib/subsilver2.xml" lang="en">subsilver2</link>
+			<link type="contrib" href="contrib/update_1.0.1_to_1.0.2.xml" lang="en">update from 1.0.1 to 1.0.2</link>
 		</link-group>
 		
 	</header>
@@ -67,8 +75,8 @@
 	}
 	$db->sql_freeresult($result);
 }]]></find>
-				<action type="after-add"><![CDATA[// Show amount of reported and qeue posts for m_ auth users
-if ($auth->acl_get('m_') || $auth->acl_getf_global('m_'))
+				<action type="after-add"><![CDATA[// Show amount of reported and queue posts for authenticated users
+if ($auth->acl_getf_global('m_report') || $auth->acl_getf_global('m_approve'))
 {
 	if (!function_exists('get_forum_list'))
 	{
