@@ -19,7 +19,7 @@
 			</author>
 		</author-group>
 		
-		<mod-version>1.0.3</mod-version>
+		<mod-version>1.0.4-DEV</mod-version>
 		
 		<installation>
 			<level>easy</level>
@@ -59,6 +59,13 @@
 					<change>Seperated the unapproved Topics and Posts counters</change>
 				</changelog>
 			</entry>
+			<entry>
+				<date>2013-11-10</date>
+				<rev-version>1.0.4</rev-version>
+				<changelog lang="en">
+					<change>Fix installation instructions for phpBB 3.0.12</change>
+				</changelog>
+			</entry>
 		</history>
 		
 		<link-group>
@@ -73,16 +80,8 @@
 		
 		<open src="index.php">
 			<edit>
-				<find><![CDATA[		$birthday_list .= (($birthday_list != '') ? ', ' : '') . get_username_string('full', $row['user_id'], $row['username'], $row['user_colour']);
-
-		if ($age = (int) substr($row['user_birthday'], -4))
-		{
-			$birthday_list .= ' (' . ($now['year'] - $age) . ')';
-		}
-	}
-	$db->sql_freeresult($result);
-}]]></find>
-				<action type="after-add"><![CDATA[// Show amount of reported and queue posts for authenticated users
+				<find><![CDATA[// Assign index specific vars]]></find>
+				<action type="before-add"><![CDATA[// Show amount of reported and queue posts for authenticated users
 if ($auth->acl_getf_global('m_report') || $auth->acl_getf_global('m_approve'))
 {
 	if (!function_exists('get_forum_list'))
